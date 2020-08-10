@@ -5,11 +5,15 @@ from django.contrib.auth.models import (
 
 
 class UserManager(BaseUserManager):
+    # this is the Method used to create a user --> call it on the User Model
     def create_user(self, email, password=None, **extra_fields):
+        # validate anything here
         if not email:
             raise ValueError("Users must have an email address")
         user = self.model(email=self.normalize_email(email), **extra_fields)
+        # this hashed the password using the hashers specified in setttings.py
         user.set_password(password)
+        # this save the user in the database
         user.save(using=self._db)
         return user
 
@@ -22,11 +26,11 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-    # use email instead of username
     email = models.EmailField(max_length=150, unique=True)
     name = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
     objects = UserManager()
+    # this allow us to use the email field as the username ---> must be unique
     USERNAME_FIELD = "email"
